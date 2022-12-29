@@ -106,6 +106,29 @@
             </div>
         </div>
 
+        <!-- Cell grid -->
+        <div class="modal fade" id="cellModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add to Cell</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="CellGroup">
+                            <div v-for="num in 24">
+                                <button v-bind:id="num" class="cellButton" @click="cellSelected($event)">cell{{num}}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modelId" data-bs-dismiss="modal">Back</button>
+                        <p id="detCrimId">1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Login Modal -->
         <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -129,7 +152,6 @@
 <!-- Vue kuna see aine seotud vue-ga -->
 <script src="https://unpkg.com/vue@3 "></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -133,6 +133,6 @@ img {
     border: 3px solid skyblue;
 }
 
-.selectedCell {
+.selectedHolder {
     background-color: maroon;
 }

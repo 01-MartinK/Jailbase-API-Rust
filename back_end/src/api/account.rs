@@ -31,7 +31,7 @@ pub async fn login(req_body: Json<LoginRequest>) -> impl Responder {
 }
 
 fn get_from_json() -> Vec<User> {
-    let data = fs::read_to_string("accounts.json").expect("Unable to read file");
+    let data = fs::read_to_string("./data/accounts.json").expect("Unable to read file");
 
     let users: Vec<User> = serde_json::from_str(&data).unwrap();
     //println!("{:?}", Users);

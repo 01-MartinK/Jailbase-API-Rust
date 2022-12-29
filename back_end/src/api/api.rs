@@ -79,11 +79,11 @@ fn write_to_json(crim_list : Vec<Criminal>) {
     let text = serde_json::to_string(&crim_list).unwrap();
 
     println!("{}", text);
-    fs::write("data.json",text).expect("Unable to write to file");
+    fs::write("./data/data.json",text).expect("Unable to write to file");
 }
 
 fn get_from_json() -> Vec<Criminal> {
-    let data = fs::read_to_string("data.json").expect("Unable to read file");
+    let data = fs::read_to_string("./data/data.json").expect("Unable to read file");
 
     let criminals: Vec<Criminal> = serde_json::from_str(&data).unwrap();
     //println!("{:?}", criminals);

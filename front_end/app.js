@@ -11,15 +11,16 @@ const datetime = () => {
     }
 
 const uuidv4 = () => {
-        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-          (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        );
-      }
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
 
 const vue = Vue.createApp({
     data() {
         return {
             criminals: [],
+            cellPositions: [],
             admin: false,
             index: 0,
             loginError: "",
@@ -29,6 +30,31 @@ const vue = Vue.createApp({
         }
     },
     async created() {
+
+        this.socket = new WebSocket("ws://localhost:8080/ws/");
+
+        this.socket.onopen = (e) => {
+            console.log("Connected to server");
+        };
+
+        this.socket.onmessage = (msg) => {
+            this.cellPositions = JSON.parse(msg.data);  
+            this.getCells();
+        };
+          
+        this.socket.onclose = (event) => {
+            if (event.wasClean) {
+              alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            } else {
+              // e.g. server process killed or network down
+              // event.code is usually 1006 in this case
+              alert('[close] Connection died');
+            }
+        };
+          
+        this.socket.onerror = function(error) {
+            alert(`[error]`);
+        };
 
         this.getAllCriminals()
 
@@ -164,6 +190,25 @@ const vue = Vue.createApp({
             .then(response => {
                 this.getAllCriminals()
             })
+        },
+        getCells: async function() {
+            const group = document.querySelector('#CellGroup')
+            const arr = Array.from(group.children);
+
+            console.log(group);
+
+            // find index where a cell may reside
+            arr.forEach((element, index) => {
+                if (this.cellPositions.find(cell => index == cell.cell_id-1))
+                    element.firstChild.classList.add("selectedHolder");
+                else
+                    element.firstChild.classList.remove("selectedHolder");
+            })
+        },
+        cellSelected: async function(e) {
+            let button_id = parseInt(e.target.id)
+            let data = JSON.stringify({prisoner_id: this.index, cell_id: button_id})
+            this.socket.send(data)
         }
 }
 }).mount('#app')
