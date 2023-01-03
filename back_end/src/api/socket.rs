@@ -3,6 +3,7 @@ use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use std::fs;
 use serde::{Deserialize, Serialize};
+use crate::api::logger::{log_event, EventLog};
 
 /// Define HTTP actor
 struct MyWs;
@@ -23,30 +24,42 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
         match msg {
             Ok(ws::Message::Text(text)) => {
 
-                let prisoner_cell: PrisonerCell = serde_json::from_str(&text).unwrap();
-                
-                let prisoner_cells: Vec<PrisonerCell> = get_from_json().clone();
-                let mut new_cells: Vec<PrisonerCell> = Vec::new();
+                if &text != "" {
+                    let prisoner_cell: PrisonerCell = serde_json::from_str(&text).unwrap();
+                    
+                    let prisoner_cells: Vec<PrisonerCell> = get_from_json().clone();
+                    let mut new_cells: Vec<PrisonerCell> = Vec::new();
 
-                let mut iter = prisoner_cells.iter();
-                let cell = iter.find(|cell| cell.prisoner_id == prisoner_cell.prisoner_id);
+                    let mut iter = prisoner_cells.iter();
+                    let cell = iter.find(|cell| cell.prisoner_id == prisoner_cell.prisoner_id);
 
-                if !cell.is_none() {
-                    for c in prisoner_cells {
-                        if c.prisoner_id == prisoner_cell.prisoner_id {
-                            new_cells.push(prisoner_cell.clone());
-                        }else {
-                            new_cells.push(c);
+                    if !cell.is_none() {
+                        for c in prisoner_cells {
+                            if c.prisoner_id == prisoner_cell.prisoner_id {
+                                new_cells.push(prisoner_cell.clone());
+                            }else {
+                                new_cells.push(c);
+                            }
                         }
+                    }else {
+                        new_cells.clone_from(&prisoner_cells);
+                        new_cells.push(prisoner_cell);
                     }
+
+                    log_event(EventLog::new("Admin", "Change of cells", "192.168.47.5"));
+
+                    write_to_json(new_cells.clone());
+
+                    let message = serde_json::to_string(&new_cells).unwrap();
+
+                    ctx.text(message);
                 }else {
-                    new_cells.clone_from(&prisoner_cells);
-                    new_cells.push(prisoner_cell);
+                    let prisoner_cells: Vec<PrisonerCell> = get_from_json().clone();
+
+                    ctx.text(serde_json::to_string(&prisoner_cells).unwrap());
                 }
-
-                write_to_json(new_cells.clone());
-
-                ctx.text(serde_json::to_string(&new_cells).unwrap());
+            
+            
             },
             _ => (),
         }

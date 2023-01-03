@@ -14,6 +14,7 @@
             <h1 class="navbar-brand">In custody or prison</h1>
             <div style="display: flex;">
                 <button v-show="!admin" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtn">Login</button>
+                <button v-show="admin" class="specialButtons" data-bs-toggle="modal" data-bs-target="#logsModal" @click="getLogs()">Logs</button>
                 <button v-show="admin" class="specialButtons" data-bs-toggle="modal" data-bs-target="#addNewModal">Add Criminal</button>
                 <button v-show="admin" @click="logout()" class="specialButtons">Logout</button>
             </div>
@@ -73,7 +74,7 @@
                     <div class="modal-footer">
                         <button v-show="admin" type="button" @click="getCells()" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cellModel">Assign Cell</button>
                         <button v-show="admin" type="button" @click="edit()" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">Edit Criminal</button>
-                        <button v-show="admin" type="button" @click="deleteCriminal()" class="btn btn-primary">Delete Criminal</button>
+                        <button v-show="admin" type="button" @click="deleteCriminal()" class="btn btn-primary" data-bs-dismiss="modal">Delete Criminal</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <p id="detCrimId">1</p>
                     </div>
@@ -124,6 +125,35 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modelId" data-bs-dismiss="modal">Back</button>
                         <p id="detCrimId">1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="logsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Logs</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table">
+                            <tr>
+                                <th class="col">Initiator</th>
+                                <th class="col">Event</th>
+                                <th class="col">Date</th>
+                                <th class="col">Ip</th>
+                            </tr>
+                            <tr v-for="log in logs">
+                                <th>{{log.initializer}}</th>
+                                <th>{{log.event}}</th>
+                                <th>{{log.date}}</th>
+                                <th>{{log.ip}}</th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-info" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>

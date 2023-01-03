@@ -21,6 +21,7 @@ const vue = Vue.createApp({
         return {
             criminals: [],
             cellPositions: [],
+            logs: [],
             admin: false,
             index: 0,
             loginError: "",
@@ -35,6 +36,7 @@ const vue = Vue.createApp({
 
         this.socket.onopen = (e) => {
             console.log("Connected to server");
+            this.socket.send("")
         };
 
         this.socket.onmessage = (msg) => {
@@ -209,6 +211,15 @@ const vue = Vue.createApp({
             let button_id = parseInt(e.target.id)
             let data = JSON.stringify({prisoner_id: this.index, cell_id: button_id})
             this.socket.send(data)
+        },
+        getLogs: async function(e) {
+            console.log("get logs");
+
+            await fetch("http://localhost:8080/logs")
+            .then(response => response.json())
+            .then(data => {
+                this.logs = data;
+            })
         }
 }
 }).mount('#app')

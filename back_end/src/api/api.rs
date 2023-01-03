@@ -2,6 +2,7 @@ use actix_web::{get, post, delete, patch, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
 use std::fs;
 use serde::{Deserialize, Serialize};
+use crate::api::logger::{log_event, EventLog};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Criminal {
@@ -19,12 +20,16 @@ pub async fn get_all_criminals() -> impl Responder {
     
     let criminals: Vec<Criminal> = get_from_json();
 
+    log_event(EventLog::new("no account", "Get all criminals", "192.168.47.5"));
+
     HttpResponse::Ok().json(criminals)
 }
 
 #[post("/criminals/add")]
 pub async fn add_criminal(req_body: String) -> impl Responder {
     let crim: Criminal = serde_json::from_str(&req_body).unwrap();
+
+    log_event(EventLog::new("Admin", "Create new criminal", "192.168.47.5"));
 
     //println!("{}", req_body);
     //println!("{:?}", crim);
@@ -42,6 +47,8 @@ pub async fn update_criminal(req_body: String) -> impl Responder {
     let updated_crim: Criminal = serde_json::from_str(&req_body).unwrap();
 
     let needed_id = updated_crim.clone().id;
+
+    log_event(EventLog::new("Admin", "Delete criminal", "192.168.47.5"));
 
     let criminals: Vec<Criminal> = get_from_json();
     let mut new_criminals: Vec<Criminal> = Vec::new();
@@ -65,6 +72,8 @@ pub async fn delete_criminal(req_body: String) -> impl Responder {
     let index: usize = req_body.parse::<usize>().unwrap();
 
     let mut criminals: Vec<Criminal> = get_from_json();
+
+    log_event(EventLog::new("Admin", "Delete criminal", "192.168.47.5"));
 
     criminals.remove(index);
 

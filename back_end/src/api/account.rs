@@ -1,6 +1,7 @@
 use actix_web::{post, HttpResponse, Responder, web::Json};
 use std::fs;
 use serde::{Deserialize, Serialize};
+use crate::api::logger::{log_event, EventLog};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct User {
@@ -24,6 +25,8 @@ pub async fn login(req_body: Json<LoginRequest>) -> impl Responder {
     let users: Vec<User> = get_from_json();
     let mut iter = users.iter();
     let user = iter.find(|user| user.name == req_body.name && user.password == req_body.password);
+
+    log_event(EventLog::new("no account", "Login to account Admin", "192.168.47.5"));
 
     println!("{:?}", user);
 
