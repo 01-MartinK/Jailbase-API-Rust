@@ -7,12 +7,13 @@ edition = "2021"
 
 [dependencies]
 actix-rt = "2.7.0"
-mongodb = "2.3.1"
 rust_socketio = "0.4.0"
 actix-web-actors = "4.1.0"
 actix = "0.13.0"
+rustls = "0.20.7"
+rustls-pemfile = "1.0.1"
 json = "0.12.4"
-actix-web = "4.2.1"
+actix-web = {version = "4.2.1", features = ["rustls"]}
 actix-cors = "0.6.4"
 json-writer = "0.2.1"
 serde = { version = "1.0.106", features = ["derive"]}

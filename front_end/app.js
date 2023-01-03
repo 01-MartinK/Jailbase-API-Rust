@@ -32,7 +32,7 @@ const vue = Vue.createApp({
     },
     async created() {
 
-        this.socket = new WebSocket("ws://localhost:8080/ws/");
+        this.socket = new WebSocket("wss://localhost:8080/ws/");
 
         this.socket.onopen = (e) => {
             console.log("Connected to server");
@@ -77,7 +77,7 @@ const vue = Vue.createApp({
                 })
             }
 
-            await fetch("http://localhost:8080/login", request)
+            await fetch("https://localhost:8080/login", request)
             .then(response => response.json())
             .then(data => {
                 if (data) {
@@ -116,7 +116,7 @@ const vue = Vue.createApp({
                 })
             }
             
-            await fetch("http://localhost:8080/criminals/add", request)
+            await fetch("https://localhost:8080/criminals/add", request)
             .then(() => {
                 this.getAllCriminals();
             })
@@ -140,7 +140,7 @@ const vue = Vue.createApp({
                 }
             };
 
-            await fetch("http://localhost:8080/criminals", requestOptions)
+            await fetch("https://localhost:8080/criminals", requestOptions)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -176,7 +176,7 @@ const vue = Vue.createApp({
                 })
             }
 
-            await fetch("http://localhost:8080/criminals/update", request_options)
+            await fetch("https://localhost:8080/criminals/update", request_options)
             .then(() => this.getAllCriminals())
         },
         deleteCriminal: async function(id) { // delete a criminal via it's id
@@ -188,7 +188,7 @@ const vue = Vue.createApp({
                     },
                     body: this.index
                 }
-            await fetch("http://localhost:8080/criminals/delete", request_options)
+            await fetch("https://localhost:8080/criminals/delete", request_options)
             .then(response => {
                 this.getAllCriminals()
             })
@@ -215,7 +215,7 @@ const vue = Vue.createApp({
         getLogs: async function(e) {
             console.log("get logs");
 
-            await fetch("http://localhost:8080/logs")
+            await fetch("https://localhost:8080/logs")
             .then(response => response.json())
             .then(data => {
                 this.logs = data;
