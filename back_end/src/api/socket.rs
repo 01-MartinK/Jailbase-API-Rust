@@ -1,12 +1,16 @@
-use actix::{Actor, StreamHandler};
+use actix::{Actor, StreamHandler, AsyncContext};
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use std::fs;
+use actix::prelude::*;
+use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use crate::api::logger::{log_event, EventLog};
 
 /// Define HTTP actor
-struct MyWs;
+struct MyApp {
+    clients: HashMap<usize, Addr<Client>>,
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PrisonerCell {
@@ -14,16 +18,78 @@ pub struct PrisonerCell {
     pub cell_id: i32,
 }
 
-impl Actor for MyWs {
-    type Context = ws::WebsocketContext<Self>;
+struct Client {
+    id: usize,
+    addr: Addr<MyApp>,
+}
+
+impl Actor for Client {
+    type Context = ws::WebsocketContext<Self, MyApp>;
+
+    fn started(&mut self, ctx: &mut Self::Context) {
+        self.addr.do_send(Connect {
+            id: self.id,
+            addr: ctx.address(),
+        });
+    }
+
+    fn stopping(&mut self, _: &mut Self::Context) -> Running {
+        self.addr.do_send(Disconnect { id: self.id });
+        Running::Stop
+    }
+}
+
+impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for Client {
+    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
+        // handle websocket messages here
+    }
+}
+
+struct Connect {
+    id: usize,
+    addr: Addr<Client>,
+}
+
+impl Message for Connect {
+    type Result = ();
+}
+
+struct Disconnect {
+    id: usize,
+}
+
+impl Message for Disconnect {
+    type Result = ();
+}
+
+impl Handler<Disconnect> for MyApp {
+    type Result = ();
+
+    fn handle(&mut self, msg: Disconnect, _: &mut Context<Self>) {
+        self.clients.remove(&msg.id);
+    }
 }
 
 /// Handler for ws::Message message
-impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
+impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyApp {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
-            Ok(ws::Message::Text(text)) => {
+            Ok(ws::Message::Ping(msg)) => {
+                ctx.pong(&msg);
+                println!("{:?}", msg);
+            }
+            Ok(ws::Message::Pong(msg)) => {
+                ctx.ping(&msg);
+                println!("{:?}", msg);
+            }
+            Ok(ws::Message::Text(_)) => {
+                let mut text = "test";
 
+                ctx.binary("test");
+            }
+
+            /*
+            Ok(ws::Message::Text(text)) => {
                 if &text != "" {
                     let prisoner_cell: PrisonerCell = serde_json::from_str(&text).unwrap();
                     
@@ -57,17 +123,19 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
                     let prisoner_cells: Vec<PrisonerCell> = get_from_json().clone();
 
                     ctx.text(serde_json::to_string(&prisoner_cells).unwrap());
+                    let msg = ws::Message::Text("lel");
+                    ctx.address().do_send(msg)
                 }
             
             
-            },
+            },*/
             _ => (),
         }
     }
 }
 
 pub async fn index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    let resp = ws::start(MyWs {}, &req, stream);
+    let resp = ws::start(MyApp {}, &req, stream);
     println!("{:?}", resp);
     resp
 }

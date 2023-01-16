@@ -12,7 +12,7 @@ use std::{fs, fs::File};
 
 fn index(req: &HttpRequest) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().content_type("text/plain").body("Welcome!"))
- }
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -35,7 +35,6 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
 
 fn load_rustls_config() -> rustls::ServerConfig {
     // init server config builder with safe defaults

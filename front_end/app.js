@@ -40,6 +40,7 @@ const vue = Vue.createApp({
         };
 
         this.socket.onmessage = (msg) => {
+            console.log(msg)
             this.cellPositions = JSON.parse(msg.data);  
             this.getCells();
         };
